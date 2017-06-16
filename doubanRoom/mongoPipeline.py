@@ -21,8 +21,8 @@ class MongoPipline(object):
 	def open_spider(self, spider):
 		self.client = pymongo.MongoClient(self.mongo_uri)
 		self.db = self.client[self.mongo_db]
-		dataSZ = self.db[self.collection_name].find({'src':'sz'}).sort([('upNumDate',pymongo.DESCENDING)]).limit(1)
-		dataFT = self.db[self.collection_name].find({'src':'ft'}).sort([('upNumDate',pymongo.DESCENDING)]).limit(1)
+		dataSZ = self.db[self.collection_name].find({'src':'SZ'}).sort([('upNumDate',pymongo.DESCENDING)]).limit(1)
+		dataFT = self.db[self.collection_name].find({'src':'FT'}).sort([('upNumDate',pymongo.DESCENDING)]).limit(1)
 		if dataFT.count() > 0:
 			globalVarible.lastUpdateFT  = dataFT[0].get('upNumDate')	
 			globalVarible.lastOrgdateFT  = dataFT[0].get('startNumTime')
