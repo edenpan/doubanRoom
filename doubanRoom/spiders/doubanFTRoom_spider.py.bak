@@ -1,0 +1,95 @@
+# -*- coding: UTF-8 -*-
+import scrapy
+import logging
+from scrapy.loader import ItemLoader
+from doubanRoom.items import RoomInfoItem
+import re
+import time
+import string
+
+
+class RoomDoubanFTspiders(scrapy.Spider):
+	name = 'doubanFTRoom_spider'
+	allowed_domains = ['www.douban.com']
+
+	def start_requests(self):
+		urls = ['https://www.douban.com/group/futianzufang/discussion?start=0']
+		yield scrapy.http.Request(
+			url=urls[0],
+			callback = self.parse_more
+			)
+
+
+	def parse_more(self, response):
+		total_No = 25
+		current_no = 25
+
+		while current_no <= total_No:
+			#logging.log(logging.INFO, "*"*40)
+			logging.log(logging.INFO, 'current No ' + str(current_no))
+			form = {'start':'0'}
+			form['start'] = str(current_no)
+			current_no = current_no + 25
+			yield scrapy.FormRequest(url = 'https://www.douban.com/group/futianzufang/discussion?',
+									formdata = form,
+									callback=self.parse_basic)
+
+	def parse_basic(self, response):
+		resList = response.css('table[class="olt"]').css('tr[class=""]')
+		for res in resList:
+			l = ItemLoader(item=RoomInfoItem(), response=response)
+			
+			resUrl = res.css('td[class="title"] a::attr(href)').extract_first()
+			tempDict = {'url':resUrl}
+			l.add_value(None, tempDict)			
+			#l.add_value('url', resUrl)
+			updateStr = '2017-' + res.css('td[class="time"]::text').extract_first()
+			structUpDate = time.strptime(updateStr,"%Y-%m-%d %H:%M")
+			upDateStr =  time.strftime("%Y/%m/%d %H:%M:%S", structUpDate)
+			l.add_value('upDate', upDateStr)
+
+			yield scrapy.http.Request(
+				url=resUrl,
+				cookies={'bid':'TGxolmTLUrY','ap':'1','__utmt':'1','__utma':'30149280.584559304.1493105814.1493105814.1493105814.1','__utmb':'30149280.7.4.1493105814','__utmc':'30149280','__utmz':'30149280.1493105814.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none)','_pk_id.100001.8cb4':'672d2319542ee755.1493105802.1.1493105827.1493105802.','_pk_ses.100001.8cb4':'*'},
+				meta={'il': l},
+				callback=self.parse_roomInfo)
+
+	def parse_roomInfo(self, response):
+		logging.log(logging.INFO, "*"*40)
+		l = response.meta['il']
+		cont_list = response.css('div[class="topic-content"] p').extract()
+		ownerName = response.css('span[class="from"] a').extract_first()
+		ownerurl = response.css('span[class="from"] a::attr(href)').extract_first()
+		orgDate = response.css('span[class="color-green"]::text').extract_first()
+		structOrgDate = time.strptime(orgDate, "%Y-%m-%d %H:%M:%S")
+		orgDateStr = time.strftime("%Y/%m/%d %H:%M:%S", structOrgDate)
+		tempList = ownerurl.split('/') 
+		ownerId = tempList[len(tempList) - 2]
+		#logging.log(logging.INFO, str(cont_list))
+		all_cont = ""
+		for cont in cont_list:
+			all_cont = all_cont + cont
+		all_cont = self.executeCont(all_cont)
+		l.add_value('content', all_cont)
+		title = response.css('div[id="content"] h1::text').extract_first()
+		title = string.replace(title,'\n','')
+		title = string.replace(title,'	q','')
+		l.add_value('title', title)
+		print('title type : ' + str(type(title)))
+		l.add_value('ownerName', ownerName)
+		l.add_value('ownerUrl', ownerurl)
+		l.add_value('ownerId', ownerId)
+		l.add_value('startTime', orgDateStr)
+
+		yield l.load_item()
+
+
+	def executeCont(self, constr):
+		constr = string.replace(constr,'<br>','')
+		constr = string.replace(constr,'</br>','')
+		constr = string.replace(constr,'<p>','')
+		constr = string.replace(constr,'</p>','')
+		return constr
+
+
+
