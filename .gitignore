@@ -1,0 +1,4 @@
+#ignore pyc file
+*.pyc
+#ignore out file
+*.out
