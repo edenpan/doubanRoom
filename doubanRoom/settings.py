@@ -98,7 +98,7 @@ ITEM_PIPELINES = {
 #HTTPCACHE_DIR = 'httpcache'
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
-MONGO_URI = 'mongodb://edenpan:doubanRoom91@13.113.36.29:27017/doubanRoom'
+MONGO_URI = 'mongodb://edenpan:doubanRoom91@localhost:27017/doubanRoom'
 #MONGO_URI = 'localhost:27017'
 MONGO_DATABASE = 'doubanRoom'
 
