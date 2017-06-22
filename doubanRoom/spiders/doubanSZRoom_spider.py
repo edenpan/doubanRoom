@@ -37,7 +37,7 @@ class RoomDoubanSZspiders(scrapy.Spider):
 	def parse_basic(self, response):
 		resList = response.css('table[class="olt"]').css('tr[class=""]')
 		import  doubanRoom.globalVarible
-		print('last' + str(doubanRoom.globalVarible.lastUpdateSZ))
+		# print('last' + str(doubanRoom.globalVarible.lastUpdateSZ))
 		lastUpdate = doubanRoom.globalVarible.lastUpdateSZ
 		
 		for res in resList:
