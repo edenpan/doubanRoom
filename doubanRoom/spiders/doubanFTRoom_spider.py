@@ -77,7 +77,8 @@ class RoomDoubanFTspiders(scrapy.Spider):
 			all_cont = all_cont + cont
 		all_cont = self.executeCont(all_cont)
 		item['content'] = all_cont
-		title = response.css('div[id="content"] h1::text').extract_first()
+		title = ""
+		title = title + response.css('div[id="content"] h1::text').extract_first()
 		title = string.replace(title,'\n','')
 		title = string.replace(title,'	q','')
 		
