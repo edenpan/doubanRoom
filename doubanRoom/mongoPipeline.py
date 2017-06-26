@@ -1,4 +1,4 @@
-
+# -*- coding: UTF-8 -*-
 import pymongo
 import globalVarible
 class MongoPipline(object):
@@ -45,12 +45,13 @@ class MongoPipline(object):
 
 	def process_item(self, item, spider):
 		if (item.get('startNumTime') is not None):
-			if(item.get('src') == 'FT'):
-				if(globalVarible.lastOrgdateFT < item['startNumTime']):
-					self.db[self.collection_name].insert(dict(item))
-			if(item.get('src') == 'SZ'):
-				if(globalVarible.lastOrgdateSZ < item['startNumTime']):
-					self.db[self.collection_name].insert(dict(item))
+			if (u'求租' not in item.get('content')) and (u'求租' not in item.get('title')):
+				if(item.get('src') == 'FT'):
+					if(globalVarible.lastOrgdateFT < item['startNumTime']):
+						self.db[self.collection_name].insert(dict(item))
+				if(item.get('src') == 'SZ'):
+					if(globalVarible.lastOrgdateSZ < item['startNumTime']):
+						self.db[self.collection_name].insert(dict(item))
 		return item			
 
 # def getLastUpdate():
